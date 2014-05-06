@@ -31,6 +31,26 @@ class ResultSetRow( val rs: ResultSet ) {
     def nextBinary: Option[ Array[Byte] ] = nextValueOption( rs.getBytes )
     def nextBigDecimal: Option[ BigDecimal ] = nextValueOption( i => BigDecimal(rs.getBigDecimal(i)) )
 
+    def boolean(column: String): Option[ Boolean ] = getColumnValueOption( column, rs.getBoolean )
+    def int(column: String): Option[ Int ] = getColumnValueOption( column, rs.getInt )
+    def long(column: String): Option[ Long ] = getColumnValueOption( column, rs.getLong )
+    def float(column: String): Option[ Float ] = getColumnValueOption( column, rs.getFloat )
+    def double(column: String): Option[ Double ] = getColumnValueOption( column, rs.getDouble )
+    def string(column: String): Option[ String ] = getColumnValueOption( column, rs.getString )
+    def date(column: String): Option[ Date ] =  getColumnValueOption( column, rs.getTimestamp )
+    def binary(column: String): Option[ Array[Byte] ] = getColumnValueOption( column, rs.getBytes )
+    def bigDecimal(column: String): Option[ BigDecimal ] = getColumnValueOption( column, c => BigDecimal( rs.getBigDecimal(c) ) )
+
+    def boolean(index: Int): Option[ Boolean ] = getIndexValueOption( index, rs.getBoolean )
+    def int(index: Int): Option[ Int ] = getIndexValueOption( index, rs.getInt )
+    def long(index: Int): Option[ Long ] = getIndexValueOption( index, rs.getLong )
+    def float(index: Int): Option[ Float ] = getIndexValueOption( index, rs.getFloat )
+    def double(index: Int): Option[ Double ] = getIndexValueOption( index, rs.getDouble )
+    def string(index: Int): Option[ String ] = getIndexValueOption( index, rs.getString )
+    def date(index: Int): Option[ Date ] =  getIndexValueOption( index, rs.getTimestamp )
+    def binary(index: Int): Option[ Array[Byte] ] = getIndexValueOption( index, rs.getBytes )
+    def bigDecimal(index: Int): Option[ BigDecimal ] = getIndexValueOption( index, i => BigDecimal( rs.getBigDecimal(i) ) )
+
     def columnNames: Seq[ String ]= {          
         val columnNames = ArrayBuffer.empty[ String ]
         val metaData = rs.getMetaData
@@ -42,6 +62,18 @@ class ResultSetRow( val rs: ResultSet ) {
     
     private def incrementPosition = { 
         position = position + 1 
+    }
+    
+    private def getColumnValueOption[T]( column: String, f: (String) => T ): Option[ T ] = {
+        val value = f( column )
+        if( rs.wasNull ) None
+        else Some( value )
+    }
+
+    private def getIndexValueOption[T]( index: Int, f: (Int) => T ): Option[ T ] = {
+        val value = f( index )
+        if( rs.wasNull ) None
+        else Some( value )
     }
 
     private def nextValueOption[T]( f: (Int) => T ): Option[ T ] = {
